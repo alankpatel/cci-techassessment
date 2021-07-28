@@ -7,8 +7,19 @@ jobs:
         parallelism: 2
         steps:
             - checkout
-            - node/install-packages:
-                pkg-manager: yarn      
+            - restore_cache:
+                name: Restore Yarn Package Cache
+                keys:
+                  - v1-yarn-packages-{{ checksum "yarn.lock" }}
+            - run:
+                name: Install Dependencies
+                command: yarn install --immutable
+            # change the versions from v1 to v3 to access the different caches and or incremenet to start from scratch
+            - save_cache:
+                name: Save Yarn Package Cache
+                key: v1-yarn-packages-{{ checksum "yarn.lock" }}
+                paths:
+                  - ~/.cache/yarn   
             - run: mkdir ~/unitTesting
             - run:
                 name: Test application
