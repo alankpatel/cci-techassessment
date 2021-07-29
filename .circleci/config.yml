@@ -54,13 +54,16 @@ jobs:
             --cache-control "max-age=86400"
 
 workflows:
-  test:
+  buildAndTest:
     jobs:
+      - build-and-test
+   deployment:
+     when:
+       and:
+         - equal: [ production , << pipeline.git.branch >> ]
+         - [ << pipeline.parameters.condition-workflow >> ]
+     jobs:
       - build-and-test
       - deploy:
           requires: 
             - build-and-test
-          when:
-            and:
-               - equal: [ production , << pipeline.git.branch >> ]
-               - [ << pipeline.parameters.condition-workflow >> ]
