@@ -52,11 +52,18 @@ jobs:
           arguments: | # Optional arguments
             --acl public-read \
             --cache-control "max-age=86400"
+            # adding comment to test production deployment
 
 workflows:
   buildAndTest:
+    when:
+      not:
+        matches:
+              pattern: "^production$"
+              value: << pipeline.git.branch >>
     jobs:
       - build-and-test
+      
   deployment:
     when:
       and:
