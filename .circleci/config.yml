@@ -43,7 +43,7 @@ jobs:
       - checkout
       - aws-s3/sync:
           from: project
-          to: 's3://circlecitest2256/deployments'
+          to: 's3://circlecitest2256/deployments/'
           arguments: | # Optional arguments
             --acl public-read \
             --cache-control "max-age=86400"
