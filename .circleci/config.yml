@@ -42,7 +42,7 @@ jobs:
     steps:
       - checkout
       - aws-s3/sync:
-          from: project
+          from: ../project
           to: 's3://circlecitest2256/deployments/'
           arguments: | # Optional arguments
             --acl public-read \
