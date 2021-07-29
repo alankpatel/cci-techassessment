@@ -57,12 +57,12 @@ workflows:
   buildAndTest:
     jobs:
       - build-and-test
-   deployment:
-     when:
-       and:
-         - equal: [ production , << pipeline.git.branch >> ]
-         - [ << pipeline.parameters.condition-workflow >> ]
-     jobs:
+  deployment:
+    when:
+      and:
+        - equal: [ production , << pipeline.git.branch >> ]
+        - equal: [ << pipeline.parameters.condition-workflow >> ]
+    jobs:
       - build-and-test
       - deploy:
           requires: 
