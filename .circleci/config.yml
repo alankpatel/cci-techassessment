@@ -56,8 +56,12 @@ jobs:
 
 workflows:
   buildAndTest:
+    when:
+      not: 
+       - equal: [ production , << pipeline.git.branch >> ]
     jobs:
       - build-and-test
+      
   deployment:
     when:
       and:
