@@ -1,40 +1,56 @@
 version: 2.1
 
+orbs:
+   aws-s3: circleci/aws-s3@x.y.z
+
 jobs:
   build-and-test:
-        docker:
-            - image: cimg/node:12.16
-        parallelism: 2
-        steps:
-            - checkout
-            - restore_cache:
-                name: Restore Yarn Package Cache
-                keys:
-                  - v1-yarn-packages-{{ checksum "yarn.lock" }}
-            - run:
-                name: Install Dependencies
-                command: yarn install --immutable
+    docker:
+      - image: cimg/node:12.16
+    parallelism: 2
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          keys:
+            - v1-yarn-packages-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install Dependencies
+          command: yarn install --immutable
             # change the versions from v1 to v3 to access the different caches and or incremenet to start from scratch
-            - save_cache:
-                name: Save Yarn Package Cache
-                key: v1-yarn-packages-{{ checksum "yarn.lock" }}
-                paths:
-                  - ~/.cache/yarn
-            - run: mkdir ~/junit         
-            - run:
-                name: Test application
-                command: |
-                    TEST=$(circleci tests glob "__test__/sum.test.js" "__test__/add.test.js" | circleci tests split --split-by=timings)
-                    yarn test $TEST
-            - run:
-                command: cp junit.xml ~/junit/
-                when: always
-            - store_test_results:
-                path: ~/junit
-            - store_artifacts:
-                path: ~/junit
+      - save_cache:
+          name: Save Yarn Package Cache
+          key: v1-yarn-packages-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+      - run: mkdir ~/junit         
+      - run:
+          name: Test application
+          command: |
+            TEST=$(circleci tests glob "__test__/sum.test.js" "__test__/add.test.js" | circleci tests split --split-by=timings)
+            yarn test $TEST
+      - run:
+          command: cp junit.xml ~/junit/
+          when: always
+      - store_test_results:
+          path: ~/junit
+      - store_artifacts:
+          path: ~/junit
+  deploy:
+    docker:
+      - image: cimg/node:12.16
+    steps:
+      - checkout
+      - aws-s3/sync:
+          from: bucket
+          to: 's3://circlecitest2256/deployments'
+          arguments: | # Optional arguments
+            --acl public-read \
+            --cache-control "max-age=86400"
+          overwrite: true # default is false
 
 workflows:
   test:
     jobs:
       - build-and-test
+      - deploy
