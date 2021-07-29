@@ -57,8 +57,10 @@ jobs:
 workflows:
   buildAndTest:
     when:
-      not: 
-       - equal: [ production , << pipeline.git.branch >> ]
+      not:
+        matches:
+              pattern: "^production$"
+              value: << pipeline.git.branch >>
     jobs:
       - build-and-test
       
