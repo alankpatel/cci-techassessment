@@ -1,5 +1,10 @@
 version: 2.1
 
+parameters:
+  condition-workflow:
+    type: boolean
+    default: false
+
 orbs:
    aws-s3: circleci/aws-s3@3.0.0
    
@@ -55,3 +60,7 @@ workflows:
       - deploy:
           requires: 
             - build-and-test
+          when:
+            and:
+               - equal: [ production , << pipeline.git.branch >> ]
+               - [ << pipeline.parameters.condition-workflow >> ]
